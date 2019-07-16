@@ -33,4 +33,81 @@
         </footer>
     </div>
 </body>
+
+<script>
+    $(document).ready(function () {
+        // checks if geolocation is available and starts main function if so
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+                main(lat, lon);
+            });
+        }
+        else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    });
+
+    // gets JSON from API with the geo coords
+    function main(lat, lon) {
+        $.getJSON(
+            "https://fcc-weather-api.glitch.me/api/current?lat=" + lat + "&lon=" + lon,
+            function (json) {
+                // set variables
+                var data = JSON.parse(JSON.stringify(json));
+                var city = data.name;
+                var country = data.sys.country;
+                var temperature = Math.round(data.main.temp);
+                var temperatureF = Math.round(data.main.temp * 1.8 + 32);
+                var weather = data.weather[0].main;
+                var weatherIcon = data.weather[0].icon;
+                var body = document.querySelector("body");
+
+                // set data in html
+                $("#location").html(city + ", " + country);
+                $("#temperature").html(temperature + "°C");
+                $("#weather").html(weather);
+                if (weatherIcon) $("#icon").attr("src", weatherIcon).show();
+
+                // set back-img with weather
+                switch (weather) {
+                    case "Mist":
+                        setBack("http://eskipaper.com/images/mist-photos-1.jpg");
+                        break;
+                    case "Clouds":
+                        setBack("https://theauriclemumus.files.wordpress.com/2018/03/pexels-photo-209845-e1521410263730.jpeg?w=820&h=312&crop=1");
+                        break;
+                    case "Fog":
+                        setBack("http://all4desktop.com/data_images/original/4248124-fog.jpg");
+                        break;
+                    case "Clear":
+                        setBack("https://d7n0myfi538ky.cloudfront.net/production/stories/7401/cover_photos/large/clear_skies_and_water_by_ivory210-d9q2jkx_1520962719.jpg?1520962719");
+                        break;
+                    case "Rain":
+                        setBack("http://s.w-x.co/56a3d494-ae4e-48be-a657-43197dac5401.jpg");
+                        break;
+                    case "Snow":
+                        setBack("https://experiencepreferred.files.wordpress.com/2010/02/p2102152.jpg");
+                        break;
+                    default:
+                        setBack("http://res.cloudinary.com/simpleview/image/upload/v1556138353/clients/austin-redesign/Austin_Convention_Visitors_Bureau_geoffduncan_02_exp_May_2020_86333b4b-0b53-4f58-a79b-b33a6d6cdbe3.jpg");
+                        break;
+                }
+
+                // switch celsius/fahrenheit
+                $("#far").click(function () {
+                    $("#temperature").html(temperatureF + "°F");
+                });
+                $("#cel").click(function () {
+                    $("#temperature").html(temperature + "°C");
+                });
+
+                // sets the background
+                function setBack(url) {
+                    body.style.backgroundImage = "url('" + url + "')";
+                }
+            }
+        )
+    }</script>
 </html>
